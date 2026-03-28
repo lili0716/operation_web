@@ -15,7 +15,7 @@ graph TD
     A --> F[src/layouts - 布局组件]
     A --> G[src/adapter - 组件适配器]
     A --> H[src/locales - 国际化]
-    
+
     I[packages/@core] --> J[共享组件/工具/类型]
     K[packages/effects] --> L[公共UI/请求/布局/hooks]
 ```
@@ -46,10 +46,10 @@ src/views/
 
 ```vue
 <script lang="ts" setup>
-import { Page } from '@vben/common-ui';               // 框架提供的页面容器
+import { Page } from '@vben/common-ui'; // 框架提供的页面容器
 import { Table, Button, Space } from 'ant-design-vue'; // UI组件
 import { onMounted, ref } from 'vue';
-import { getUserList } from '#/api/system';             // API调用
+import { getUserList } from '#/api/system'; // API调用
 
 const loading = ref(false);
 const dataSource = ref([]);
@@ -76,6 +76,7 @@ onMounted(() => fetchData());
 ```
 
 > [!IMPORTANT]
+>
 > - `#/` 是路径别名，指向 `src/` 目录
 > - 使用 `Page` 组件（来自 `@vben/common-ui`）作为页面最外层容器
 > - UI组件来自 `ant-design-vue`
@@ -105,23 +106,30 @@ src/api/
 import { requestClient } from '#/api/request';
 
 // 简单CRUD模式
-export const getList = (params: any) => requestClient.get('/module/list', { params });
+export const getList = (params: any) =>
+  requestClient.get('/module/list', { params });
 export const add = (data: any) => requestClient.post('/module', data);
 export const update = (data: any) => requestClient.put('/module', data);
 export const remove = (id: number) => requestClient.delete(`/module/${id}`);
 
 // 带类型定义的模式（推荐）
 export namespace ModuleApi {
-  export interface Params { page: number; pageSize: number; }
-  export interface Result { id: number; name: string; }
+  export interface Params {
+    page: number;
+    pageSize: number;
+  }
+  export interface Result {
+    id: number;
+    name: string;
+  }
 }
 export async function getModuleList(params: ModuleApi.Params) {
   return requestClient.get<ModuleApi.Result[]>('/module/list', { params });
 }
 ```
 
-> [!NOTE]
-> **请求客户端关键配置**（[request.ts](file:///d:/Operations/web/apps/web-antd/src/api/request.ts)）：
+> [!NOTE] **请求客户端关键配置**（[request.ts](file:///d:/Operations/web/apps/web-antd/src/api/request.ts)）：
+>
 > - 基础URL来自环境变量 `VITE_GLOB_API_URL`（开发环境为 `/api`）
 > - 自动附加 `Bearer Token` 到请求头
 > - 响应拦截器约定：`{ code: 0, data: ... }` 格式，`code=0` 表示成功
@@ -138,6 +146,7 @@ export async function getModuleList(params: ModuleApi.Params) {
 路由和菜单数据从**后端数据库**获取，通过 `getAllMenusApi()` 接口 (`GET /menu/all`) 拉取。
 
 工作流程：
+
 ```mermaid
 sequenceDiagram
     participant 用户 as 用户
@@ -155,6 +164,7 @@ sequenceDiagram
 ```
 
 后端返回的菜单数据格式示例：
+
 ```json
 {
   "path": "/system",
@@ -172,8 +182,7 @@ sequenceDiagram
 }
 ```
 
-> [!IMPORTANT]
-> `component` 字段中的路径会被 `import.meta.glob('../views/**/*.vue')` 生成的 `pageMap` 匹配。例如 `"/system/user/index"` 会匹配到 `src/views/system/user/index.vue`。
+> [!IMPORTANT] `component` 字段中的路径会被 `import.meta.glob('../views/**/*.vue')` 生成的 `pageMap` 匹配。例如 `"/system/user/index"` 会匹配到 `src/views/system/user/index.vue`。
 
 #### 模式B：前端静态路由
 
@@ -189,8 +198,8 @@ const routes: RouteRecordRaw[] = [
     name: 'Dashboard',
     meta: {
       icon: 'lucide:layout-dashboard',
-      order: -1,                              // 菜单排序
-      title: $t('page.dashboard.title'),      // 国际化标题
+      order: -1, // 菜单排序
+      title: $t('page.dashboard.title'), // 国际化标题
     },
     children: [
       {
@@ -198,7 +207,7 @@ const routes: RouteRecordRaw[] = [
         path: '/analytics',
         component: () => import('#/views/dashboard/analytics/index.vue'),
         meta: {
-          affixTab: true,                     // 固定标签页
+          affixTab: true, // 固定标签页
           icon: 'lucide:area-chart',
           title: $t('page.dashboard.analytics'),
         },
@@ -237,15 +246,15 @@ flowchart TD
 
 以新增一个"订单管理"页面为例：
 
-| 步骤 | 操作 | 文件位置 |
-|------|------|----------|
-| 1 | 创建视图组件 | `src/views/order/index.vue` |
-| 2 | 创建API接口 | `src/api/order/index.ts` |
-| 3 | 注册导出（如需要） | 在 `src/api/index.ts` 中导出 |
-| 4 | 添加路由/菜单 | **后端数据库**中插入菜单记录（当前模式） |
+| 步骤 | 操作               | 文件位置                                 |
+| ---- | ------------------ | ---------------------------------------- |
+| 1    | 创建视图组件       | `src/views/order/index.vue`              |
+| 2    | 创建API接口        | `src/api/order/index.ts`                 |
+| 3    | 注册导出（如需要） | 在 `src/api/index.ts` 中导出             |
+| 4    | 添加路由/菜单      | **后端数据库**中插入菜单记录（当前模式） |
 
-> [!TIP]
-> 由于当前项目使用**后端动态路由**模式，新增页面时**不需要**手动创建前端路由文件。只需：
+> [!TIP] 由于当前项目使用**后端动态路由**模式，新增页面时**不需要**手动创建前端路由文件。只需：
+>
 > 1. 在 `src/views/` 下创建页面组件
 > 2. 在 `src/api/` 下创建API接口
 > 3. 在**数据库**的菜单表中插入对应记录，`component` 字段指向视图路径
@@ -254,23 +263,24 @@ flowchart TD
 
 ## 5. 关键路径别名和导入约定
 
-| 别名 | 实际路径 | 用途 |
-|------|----------|------|
-| `#/` | `src/` | 应用内部模块导入 |
+| 别名              | 实际路径                     | 用途                 |
+| ----------------- | ---------------------------- | -------------------- |
+| `#/`              | `src/`                       | 应用内部模块导入     |
 | `@vben/common-ui` | `packages/effects/common-ui` | 通用UI组件（Page等） |
-| `@vben/request` | `packages/effects/request` | HTTP请求客户端 |
-| `@vben/stores` | `packages/stores` | 全局状态管理 |
-| `@vben/hooks` | `packages/effects/hooks` | 组合式API |
-| `@vben/access` | `packages/effects/access` | 权限控制 |
-| `@vben/layouts` | `packages/effects/layouts` | 布局组件 |
-| `@vben/types` | `packages/types` | 类型定义 |
-| `@vben/utils` | `packages/utils` | 工具函数 |
+| `@vben/request`   | `packages/effects/request`   | HTTP请求客户端       |
+| `@vben/stores`    | `packages/stores`            | 全局状态管理         |
+| `@vben/hooks`     | `packages/effects/hooks`     | 组合式API            |
+| `@vben/access`    | `packages/effects/access`    | 权限控制             |
+| `@vben/layouts`   | `packages/effects/layouts`   | 布局组件             |
+| `@vben/types`     | `packages/types`             | 类型定义             |
+| `@vben/utils`     | `packages/utils`             | 工具函数             |
 
 ---
 
 ## 6. 环境配置
 
 开发环境配置文件 [.env.development](file:///d:/Operations/web/apps/web-antd/.env.development)：
+
 - **端口**：`VITE_PORT=5666`
 - **API基础路径**：`VITE_GLOB_API_URL=/api`（通过 Vite 代理转发到后端）
 - **Mock服务**：`VITE_NITRO_MOCK=false`（已关闭，使用真实后端）

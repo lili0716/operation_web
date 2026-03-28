@@ -18,7 +18,12 @@ const [Grid] = useVbenVxeGrid({
       { field: 'roles', title: '所属角色' },
       { field: 'status', title: '状态' },
       { field: 'createTime', title: '创建时间' },
-      { field: 'action', title: '操作', width: 120, slots: { default: 'action' } },
+      {
+        field: 'action',
+        title: '操作',
+        width: 120,
+        slots: { default: 'action' },
+      },
     ],
     proxyConfig: {
       ajax: {
